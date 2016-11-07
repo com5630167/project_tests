@@ -1,0 +1,277 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Map Display</title>
+   
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://getbootstrap.com/examples/justified-nav/justified-nav.css" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <style>
+
+	body { font: 12px Arial;}
+
+	path { 
+	    stroke: steelblue;
+	    stroke-width: 2;
+	    fill: none;
+	}
+
+	.axis path,
+	.axis line {
+	    fill: none;
+            stroke: black;
+	}
+	.tick text{
+	    font-size: 12px;
+	}
+
+	.tick line{
+	    opacity: 0.2;
+	}
+        .line{
+	    fill: none;
+	    stroke: blue;
+	    stroke-width: 3px;
+	}
+
+
+</style>
+</head>
+<body>
+	<p id="demo"></p>
+        <div id="map" style="position:relative; left: 20px; width:900px; height:400px; border:1px solid #000;">
+	      <span id="info" style="position:absolute; left:15px; bottom:5px; color:#000; z-index:50;"></span>
+	</div>
+       
+	<input type="hidden" id="myVar" name="variable" value="{{ lat }}">
+	<input type="hidden" id="myVar2" name="variable" value="{{ tem }}">
+
+	
+        <div id="tool" style="position:relative; left: 1100px; width:150px; height:50px; top:-300px;">
+                  <p>Variable</p>
+		  <select id="vars">
+		    <option value="1">Temperature</option>
+		    <option value="2">Precipitation </option>
+		  </select>
+        </div>
+        
+        <div id="tool2" style="position:relative; left: 1100px; width:150px; height:50px; top:-290px;">
+                  <p>Index</p>
+		  <select id="index">
+		    <option value="FD">FD</option>
+		    <option value="SU">SU </option>
+                    <option value="ID">ID</option>
+		  </select>
+        </div>
+
+        <div class="container" style="position:relative; left: -480px; top:-100px; width:500px; height:500px;">
+		<div class="jumbotron" style="position:absolute; right:0; width:500px; height:500px;">
+
+		    <svg id="visualisation" width="900" height="500"></svg>
+		    
+		</div>
+                
+        </div>
+         
+         <div class="container" style="position:relative; left: 180px; top:-600px; width:500px; height:500px;">
+		<div class="jumbotron" style="position:absolute; right:0; width:500px; height:500px;">
+
+		    <svg id="vis2" width="900" height="500"></svg>
+		    
+		</div>
+                
+        </div>
+	
+	
+
+  
+</body>
+
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="jquery-1.12.4.min.js"></script>
+
+<script>
+       
+
+        function InitChart(gg,x_iti,x_aix,min_y,max_y,dataPloat,des,lable,reset,plot_name) {
+
+
+			var margin = {top: 100, right: 100, bottom: 100, left: 100},
+			    width = 700 - margin.left - margin.right,
+			    height = 500 - margin.top - margin.bottom;
+			//tooltip
+			var tooltip = d3.select(gg).append("div")
+					.attr("class","tooltip")
+					.style("opacity",0)
+			//scale
+			var x = d3.scale.linear()
+			    .domain([x_iti, Math.max.apply(Math, x_aix)])
+			    .range([0, width]);
+
+			var y = d3.scale.linear()
+			    .domain([min_y, max_y])
+			    .range([height, 0]);
+		
+			var line = d3.svg.area()
+				.x(function(d,i) { 
+			
+						return (x(i)+reset); 
+				})
+				.y(function(i) { 
+			
+						return y(i); 
+				})
+				.interpolate("basis");
+
+		        var yAxisLeft = d3.svg.axis()
+			    .scale(y)
+			    .ticks(4)
+			    .orient("left")
+                            .innerTickSize(-(width+10))
+			    .outerTickSize(0)
+			    .tickPadding(10);
+		
+			var xAxis = d3.svg.axis()
+			    .scale(x)
+			    .orient("bottom")
+                            .innerTickSize(-height)
+			    .outerTickSize(0)
+			    .tickPadding(10);
+
+                        var div = d3.select(gg).append("div")	
+			    .attr("class", "tooltip")				
+			    .style("opacity", 0);
+
+			var svg = d3.select(gg).append("svg")
+			    .attr("width", width + margin.left + margin.right)
+			    .attr("height", height + margin.top + margin.bottom)
+			    .append("g")
+			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+			 
+                            .text(function(i){ return 1 });
+
+                        
+
+                        svg.append("rect")
+			    .attr("width", width+10)
+			    .attr("height", height)
+			    .attr("fill", "#ffffe6");
+
+			svg.append("g")
+			    .attr("class", "y axis")
+			    .attr("transform", "translate(-25,0)")
+			    .call(yAxisLeft);
+
+			svg.append("g")
+			    .attr("class", "x axis")
+			    .attr("transform", "translate(0," + (height) + ")")
+                            .call(xAxis);
+
+			svg.append("path").attr("d", line(dataPloat));
+
+                      svg.append("text")
+			    .attr("x", -10 )
+			    .attr("y", -10 )
+                            .style("font-family", "sans-serif")
+                            .style("fill", "#000080")
+			    .style("text-anchor", "middle")
+			    .text(plot_name);
+
+                        svg.append("text")
+			    .attr("x", width+20 )
+			    .attr("y", height +5 )
+                            .style("font-family", "sans-serif")
+                            .style("fill", "#000080")
+			    .style("text-anchor", "middle")
+			    .text(lable);
+
+			svg.append("text")
+			    .attr("x", width/2 )
+			    .attr("y", -40 )
+                            .style("fill", "#000033")
+			    .style("font-family", "sans-serif")
+                            .style("text-anchor", "middle")
+                            .attr("font-size", "15px")
+			    .text(des);	
+			d3.select("select")
+		           .on("change",function(d,i){
+				var sel = d3.select("#vars").node.value
+			});
+
+                       /* svg.selectAll("dot")	
+				.data(dataPloat)			
+				.enter().append("circle")								
+				.attr("r", 2)		
+				.attr("cx", function(d,i) { return (x(i)+reset); })		 
+				.attr("cy", function(i) { return y(i); })*/
+         }
+
+
+       var data1 = {{tem_y|safe}}
+	
+       var lat_t = {{year|safe}}
+       var max_t = Math.max.apply(Math, data1);
+       var min_t = Math.min.apply(Math, data1);
+
+       var data2 = {{tem_m|safe}}
+	
+       var mon_y = {{mon|safe}}
+       var max_d2 = Math.max.apply(Math, data2);
+       var min_d2 = Math.min.apply(Math, data2);
+
+       var data3 = {{percip_y|safe}}
+     
+       var mx_t = Math.max.apply(Math, data3);
+       var mn_t = Math.min.apply(Math, data3);
+
+       var data4 = {{percip_m|safe}}
+
+       var mx_d2 = Math.max.apply(Math, data4);
+       var mn_d2 = Math.min.apply(Math, data4);
+       
+
+       $("select#vars").change(function(){
+              x = $(this).val();
+              if(x==1){
+                  d3.selectAll("svg > *").remove();
+                  InitChart("#visualisation",lat_t[0],lat_t,min_t,max_t,data1,"Temperature in 1970-1979","years",0,"Temperature °C");
+                  InitChart("#vis2",mon_y[0],mon_y,min_d2,max_d2,data2,"Temperature in Jan-Dec","month",45,"Temperature °C");
+	      }else if(x==2){
+                  d3.selectAll("svg > *").remove();
+                  InitChart("#visualisation",lat_t[0],lat_t,mn_t,mx_t,data3,"Precipitation in 1970-1979","years",0,"Precipitation mm/hr");
+                  InitChart("#vis2",mon_y[0],mon_y,mn_d2,mx_d2,data4,"Precipitation in Jan-Dec","month",45,"Precipitation mm/hr");
+              }
+	     
+       })
+                
+   
+
+      var map2;
+      function initMap() {
+        var uluru = {lat: -25.363, lng: 131.044};
+        var map2 = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: uluru
+        });
+        var marker = new google.maps.Marker({
+          position: uluru,
+          map: map2
+        });
+      }
+
+
+      
+      
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_2OcNffK1GNtFkktwWvtdtiGtDcJ6aS0&callback=initMap"
+    async defer></script>
+
+</html> 
