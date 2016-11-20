@@ -13,21 +13,25 @@ import datetime as dt
 from decimal import *
 # Create your views here.
 def home_page(request):
+  #--------Average--------
+   dat_t = dat('ts','avg')
+   mon_t = mon('ts','avg')
+
+   dat_p = dat('pr','avg')
+   mon_p = mon('pr','avg')
+  #--------Max------------
+   dat_maxt = dat('ts','max')
    
-   y1990 = Dec_year(1,'ts')
-   y1 = [1,2,3,4,5,6,7,8,9,10,11,12]
-   year_tem = cal_year('ts')
-   year_per = cal_year('pr')
-   year_n = [1970,1971,1972,1973,1974,1975,1976,1978,1979]
-   y2 = [0,1,2,3,4,5,6,7,8,9]
+   dat_maxp = dat('pr','max')
+  #--------Min------------
+   dat_mint = dat('ts','min')
+   
+   dat_minp = dat('pr','min')
 
-   month_tem = cal_month('ts')
-   month_pr = cal_month('pr')
-   dataset = data_set('ts')
-   datayear = data_year()
-   return render(request, 'home.html',{'year':json.dumps(y2) ,'tem_y':json.dumps(year_tem),'tem_m':json.dumps(month_tem),'mon':json.dumps(y1),'data':json.dumps(dataset),'year_d':json.dumps(datayear),'percip_y':json.dumps(year_per),'percip_m':json.dumps(month_pr)})
+   return render(request, 'home.html',{'dat':json.dumps(dat_t),'mon':json.dumps(mon_t),'per_y':json.dumps(dat_p),'max_p':json.dumps(dat_maxp),'max_t':json.dumps(dat_maxt),'min_t':json.dumps(dat_mint),'min_p':json.dumps(dat_minp),'mon_p':json.dumps(mon_p)})
 
-def Dec_year(year,var):
+#--------------------------------------------------------------------------#
+def Dec_year(year,var,ind):
    y = str(year)
    m1 = Dataset('/home/thiranan/Climate Data/Exp_03_mm_ATM.197'+y+'01.nc', 'r')
    m2 = Dataset('/home/thiranan/Climate Data/Exp_03_mm_ATM.197'+y+'02.nc', 'r')
@@ -58,18 +62,48 @@ def Dec_year(year,var):
    ts11 = m11.variables[var]
    ts12 = m12.variables[var]
 
-   temp_avg1 = np.average(ts1,axis=2)
-   temp_avg2 = np.average(ts2,axis=2)
-   temp_avg3 = np.average(ts3,axis=2)
-   temp_avg4 = np.average(ts4,axis=2)
-   temp_avg5 = np.average(ts5,axis=2)
-   temp_avg6 = np.average(ts6,axis=2)
-   temp_avg7 = np.average(ts7,axis=2)
-   temp_avg8 = np.average(ts8,axis=2)
-   temp_avg9 = np.average(ts9,axis=2)
-   temp_avg10 = np.average(ts10,axis=2)
-   temp_avg11 = np.average(ts11,axis=2)
-   temp_avg12 = np.average(ts12,axis=2)
+   if(ind == 'avg'):
+       temp_avg1 = np.average(ts1,axis=2)
+       temp_avg2 = np.average(ts2,axis=2)
+       temp_avg3 = np.average(ts3,axis=2)
+       temp_avg4 = np.average(ts4,axis=2)
+       temp_avg5 = np.average(ts5,axis=2)
+       temp_avg6 = np.average(ts6,axis=2)
+       temp_avg7 = np.average(ts7,axis=2)
+       temp_avg8 = np.average(ts8,axis=2)
+       temp_avg9 = np.average(ts9,axis=2)
+       temp_avg10 = np.average(ts10,axis=2)
+       temp_avg11 = np.average(ts11,axis=2)
+       temp_avg12 = np.average(ts12,axis=2)
+
+   if(ind == 'min'):
+       temp_avg1 = np.min(ts1,axis=2)
+       temp_avg2 = np.min(ts2,axis=2)
+       temp_avg3 = np.min(ts3,axis=2)
+       temp_avg4 = np.min(ts4,axis=2)
+       temp_avg5 = np.min(ts5,axis=2)
+       temp_avg6 = np.min(ts6,axis=2)
+       temp_avg7 = np.min(ts7,axis=2)
+       temp_avg8 = np.min(ts8,axis=2)
+       temp_avg9 = np.min(ts9,axis=2)
+       temp_avg10 = np.min(ts10,axis=2)
+       temp_avg11 = np.min(ts11,axis=2)
+       temp_avg12 = np.min(ts12,axis=2)
+
+   if(ind == 'max'):
+       temp_avg1 = np.max(ts1,axis=2)
+       temp_avg2 = np.max(ts2,axis=2)
+       temp_avg3 = np.max(ts3,axis=2)
+       temp_avg4 = np.max(ts4,axis=2)
+       temp_avg5 = np.max(ts5,axis=2)
+       temp_avg6 = np.max(ts6,axis=2)
+       temp_avg7 = np.max(ts7,axis=2)
+       temp_avg8 = np.max(ts8,axis=2)
+       temp_avg9 = np.max(ts9,axis=2)
+       temp_avg10 = np.max(ts10,axis=2)
+       temp_avg11 = np.max(ts11,axis=2)
+       temp_avg12 = np.max(ts12,axis=2)
+
    
    if(var == 'ts'):
        for i in range(1):
@@ -126,49 +160,49 @@ def Dec_year(year,var):
 
 
 
-def cal_year(var):
+def cal_year(var,ind):
    y197 = []
    for i in range(0, 10):
-       y = Dec_year(i,var)
+       y = Dec_year(i,var,ind)
        y197.append(sum(y)/len(y))
    c = np.array(y197)
    y197 = [float(Decimal("%.2f" % e)) for e in c]
    return y197
 
-def cal_month(var):
+def cal_month(var,ind):
    mon_avg = []
-   y0 = Dec_year(0,var)
-   y1 = Dec_year(1,var)
-   y2 = Dec_year(2,var)
-   y3 = Dec_year(3,var)
-   y4 = Dec_year(4,var)
-   y5 = Dec_year(5,var)
-   y6 = Dec_year(6,var)
-   y7 = Dec_year(7,var)
-   y8 = Dec_year(8,var)
-   y9 = Dec_year(9,var)
+   y0 = Dec_year(0,var,ind)
+   y1 = Dec_year(1,var,ind)
+   y2 = Dec_year(2,var,ind)
+   y3 = Dec_year(3,var,ind)
+   y4 = Dec_year(4,var,ind)
+   y5 = Dec_year(5,var,ind)
+   y6 = Dec_year(6,var,ind)
+   y7 = Dec_year(7,var,ind)
+   y8 = Dec_year(8,var,ind)
+   y9 = Dec_year(9,var,ind)
  
 
    for i in range(0, 12):
-       mon_avg.append((y0[i]+y1[i]+y2[i]+y3[i]+y4[i]+y5[i]+y6[i]+y7[i]+y8[i]+y9[i])/9)
+       mon_avg.append((y0[i]+y1[i]+y2[i]+y3[i]+y4[i]+y5[i]+y6[i]+y7[i]+y8[i]+y9[i])/10)
 
    c = np.array(mon_avg)
    mon_avg = [float(Decimal("%.2f" % e)) for e in c]
 
    return mon_avg
 
-def data_set(var):
+def data_set(var,ind):
    mon_avg = []
-   y0 = Dec_year(0,var)
-   y1 = Dec_year(1,var)
-   y2 = Dec_year(2,var)
-   y3 = Dec_year(3,var)
-   y4 = Dec_year(4,var)
-   y5 = Dec_year(5,var)
-   y6 = Dec_year(6,var)
-   y7 = Dec_year(7,var)
-   y8 = Dec_year(8,var)
-   y9 = Dec_year(9,var)
+   y0 = Dec_year(0,var,ind)
+   y1 = Dec_year(1,var,ind)
+   y2 = Dec_year(2,var,ind)
+   y3 = Dec_year(3,var,ind)
+   y4 = Dec_year(4,var,ind)
+   y5 = Dec_year(5,var,ind)
+   y6 = Dec_year(6,var,ind)
+   y7 = Dec_year(7,var,ind)
+   y8 = Dec_year(8,var,ind)
+   y9 = Dec_year(9,var,ind)
  
 
    for i in range(0, 12):
@@ -188,22 +222,106 @@ def data_set(var):
 
    return mon_avg
 
+#def data_year():
+#   mon_avg = []
+#   mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+#   for i in range(0, 10):
+#       for j in range(0, 12):
+#           mon_avg.append(mon[j]+" "+"197"+str(i))
+           
+#   return mon_avg
+#print(data_year())
+
 def data_year():
    mon_avg = []
-   
    for i in range(0, 10):
        for j in range(1, 13):
            if j <= 9:
                mon_avg.append("197"+str(i)+"-0"+str(j)+"-00")
            elif j >= 10:
                mon_avg.append("197"+str(i)+"-"+str(j)+"-00")
-
    return mon_avg
 
+def dat(x,ind):
+    data = data_set(x,ind)
+    year = data_year()
+    set_d = []
+    for i in range(0,len(data)):
+        set_d.append([year[i],data[i]])
+    return set_d
+
+def mon(x,ind):
+    data = cal_month(x,ind)
+    month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+    set_d = []
+    for i in range(0,len(data)):
+        set_d.append([month[i],data[i]])
+    return set_d
+
+#--------------------------------------------------------------------------#
 def vis_page(request):
+    
+    
     return render(request, 'vis.html')
+#--------------------------------------------------------------------------#
 def openL_page(request):
-    return render(request, 'OpenL.html')
+    if(request.method == 'POST'and request.POST.get(
+                                   'submit','') == 'save'):
+        lat_txt = float(request.POST['lat'])
+        lng_txt = float(request.POST['lng'])
+        lat_ = float(Decimal("%.2f" % lat_txt))
+        lng_ = float(Decimal("%.2f" % lng_txt))
+        latlng = "Lat:"+str(lat_)+"Lng:"+str(lng_)
+        Bangkok = {'name': latlng, 'lat': lat_, 'lon': lng_}
+    else:
+        Bangkok = {'name': 'Bangkok, Thailand', 'lat': 13.45, 'lon': 100.48}
+
+    nc_fid = Dataset('/home/thiranan/PoJ/air.sig995.2012.nc', 'r') 
+    lats = nc_fid.variables['lat'][:]  
+    lons = nc_fid.variables['lon'][:]
+    time = nc_fid.variables['time'][:]
+    air = nc_fid.variables['air'][:] 
+
+    time_idx = 100  # some random day in 2012
+    # Python and the renalaysis are slightly off in time so this fixes that problem
+    offset = dt.timedelta(hours=48)
+    # List of all times in the file as datetime objects
+    d0 = dt.date(1970, 1, 1)
+    delta = [str(dt.date(1, 1, 1) + dt.timedelta(hours=t) - offset -d0).split() \
+               for t in time]
+    cur_time = d0+dt.timedelta(days=int(delta[0][0]))
+    dt_time = [int(delta[i][0]) for i in range(len(time))]
+    #cur_time = dt_time[time_idx]
+
+
+
+    # Find the nearest latitude and longitude for Darwin
+    lat_idx = np.abs(lats - Bangkok['lat']).argmin()
+    lon_idx = np.abs(lons - Bangkok['lon']).argmin()
+
+    celsius = air[:, lat_idx, lon_idx]
+
+    for i in range(len(time)):
+        celsius[i] = air[i, lat_idx, lon_idx] - 273.15
+
+    #cel = np.average(air,axis=2)
+
+    title = nc_fid.variables['air'].var_desc+" from "+Bangkok['name']+" for "+str(cur_time.year)
+
+    a = 0
+    b = 12
+    ta = []
+    for i in range(13):
+        ta.append(np.average(celsius[a:b]))
+        a = a+12
+        b = a+12
+
+    c = np.array(celsius[:])
+    d = [float(Decimal("%.2f" % e)) for e in c]
+
+    av = [float(Decimal("%.2f" % e)) for e in ta]
+#--------------------------------------------------------------------------#
+    return render(request, 'OpenL.html',{'lat':json.dumps(av) ,'tem':json.dumps(d),'date':json.dumps(title)}) 
 def leaft_page(request):
     return render(request, 'leaft.html')
 def arc_page(request):

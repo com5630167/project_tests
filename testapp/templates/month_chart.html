@@ -1,0 +1,83 @@
+function int_chart(mon_plot) {
+    //d3.selectAll("svg > *").remove();
+    var margin3 = {top: 30, right: 40, bottom: 110, left: 40},
+    width3 = 640 - margin3.left - margin3.right,
+    height3 = 500 - margin3.top - margin3.bottom;
+
+    var parseD = d3.time.format("%b").parse;
+
+    var x3 = d3.time.scale().range([0, width3])
+    var y3 = d3.scale.linear().range([height3, 0]);
+
+    var xAxis3 = d3.svg.axis().scale(x3).orient("bottom");
+    var yAxis3 = d3.svg.axis().scale(y3).orient("left");
+
+    var line = d3.svg.line()
+    .interpolate("basis")
+    .x(function(d) { return x3(d.date); })
+    .y(function(d) { return y3(d.close); });
+
+    var svg = d3.select("#map2").append("svg")
+     .attr("width", width3 + margin3.left + margin3.right)
+     .attr("height", height3 + margin3.top + margin3.bottom)
+     .append("g")
+     .attr("transform", "translate(" + margin3.left + "," + margin3.top + ")");
+
+    svg.append("rect")
+     .attr("width", width3)
+     .attr("height", height3)
+     .attr("fill", "#f5f5f0");
+
+   
+    var data3 = mon_plot.map(function(d) {
+       //document.getElementById("demo").innerHTML = d[0];
+       return {
+          date: parseD(d[0]),
+          close: d[1]
+       };
+      
+     });
+     
+     x3.domain(d3.extent(data3, function(d) { return d.date; }));
+     y3.domain(d3.extent(data3, function(d) { return d.close; }));
+ 
+    svg.append("path")
+      .datum(data3) 
+      .attr("class", "line")
+      .attr("d", line);
+
+    svg.append("g")
+       .attr("class", "x axis")
+       .attr("transform", "translate(0," + height3 + ")")
+       .call(xAxis3);
+
+    svg.append("g")
+       .attr("class", "y axis")
+       .call(yAxis3);
+
+    svg.append("text")
+       .attr("x", 0 )
+       .attr("y",-5 )
+       .style("font-family", "sans-serif")
+       .style("fill", "#e60000")
+       .style("text-anchor", "middle")
+       .text("Temperature °C");
+
+    svg.append("text")
+       .attr("x", width3+20)
+       .attr("y", height3+5 )
+       .style("font-family", "sans-serif")
+       .style("fill", "#e60000")
+       .style("text-anchor", "middle")
+       .text("month");
+
+    svg.append("text")
+       .attr("x", width3/2 )
+       .attr("y", -10 )
+       .style("fill", "#000033")
+       .style("font-family", "sans-serif")
+       .style("text-anchor", "middle")
+       .attr("font-size", "15px")
+       .text("Temperature in Jan-Dec of 1970-1979");
+
+}
